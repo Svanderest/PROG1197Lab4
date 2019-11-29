@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.IO;
 
 namespace PROG1197Lab4Objects
 {
@@ -12,7 +13,25 @@ namespace PROG1197Lab4Objects
         public static MovieTree Create()
         {
             tree = new MovieTree();
-            return tree;
+            using (FileStream fs = new FileStream(@"C:\\Users\\sebas\\source\repos\\PROG1197Lab4\\PROG1197Lab4\\PROG1197Lab4Objects\\MovieText.txt", FileMode.Open))
+            using(StreamReader sr = new StreamReader(fs))
+            {
+                List<string> lines = new List<string>();
+                while(!sr.EndOfStream)
+                {
+                    lines.Add(sr.ReadLine());
+                }
+                tree.Root = tree.Build(lines.Select(l => l.Split(';')).Select(line => 
+                new MovieNode
+                {
+                    Title = line[0],
+                    ReleaseDate = Convert.ToDateTime(line[1]),
+                    Runtime = TimeSpan.FromMinutes(Convert.ToInt32(line[2])),
+                    Director = line[3],
+                    Rating = Convert.ToDouble(line[4])
+                }));
+            }
+           return tree;
         }
 
         public MovieNode Root { get; private set; }
@@ -20,22 +39,31 @@ namespace PROG1197Lab4Objects
         public MovieNode Build(IEnumerable<MovieNode> nodes)
         {
             nodes = nodes.OrderBy(n => n);
-            var current = nodes.ElementAt(nodes.Count() / 2);
-            if (current != nodes.Max())
-                current.Right = Build(nodes.Where(n => n.CompareTo(current) == 1));
-            if (current != nodes.Min())
-                current.Left = Build(nodes.Where(n => n.CompareTo(current) == -1));
-            return current;
+            try
+            {
+                var current = nodes.ElementAt(nodes.Count() / 2);
+                if (current != nodes.Max())
+                    current.Right = Build(nodes.Where(n => n.CompareTo(current) == 1));
+                if (current != nodes.Min())
+                    current.Left = Build(nodes.Where(n => n.CompareTo(current) == -1));
+                return current;
+            }
+            catch
+            {
+                return null; 
+            }
         }
 
         public void Add(MovieNode item)
         {
             if (Root == null)
                 Root = item;
+            else if (Root.Children.Contains(item) || Root.CompareTo(item) == 0)
+                return;
             else if (!Root.Inbalanced)
             {
                 var current = Root;
-                while(current.CompareTo(item) != 0)
+                while (current.CompareTo(item) != 0)
                 {
                     int i = item.CompareTo(current);
                     if (i == -1 && current.Left == null)
@@ -44,14 +72,14 @@ namespace PROG1197Lab4Objects
                         current.Right = item;
                     current = i == 1 ? current.Right : current.Left;
                 }
-            }            
+            }
             else
             {
                 var current = Root;
-                while(true)
+                while (current.CompareTo(item) != 0)
                 {
                     var next = item.CompareTo(current) == -1 ? current.Left : current.Right;
-                    if(next == null || !next.Inbalanced)
+                    if (next == null || !next.Inbalanced)
                     {
                         float i = current.CompareTo(Root);
                         MovieNode previous = null;
@@ -68,7 +96,7 @@ namespace PROG1197Lab4Objects
                         else
                             previous.Right = rebuiltTree;
                         break;
-                    }                 
+                    }
                 }
             }            
         }

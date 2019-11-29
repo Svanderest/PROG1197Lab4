@@ -9,7 +9,7 @@ namespace PROG1197Lab4Objects
         public DateTime ReleaseDate { get; set; }
         public TimeSpan Runtime { get; set; }
         public string Director { get; set; }
-        public float Rating { get; set; }
+        public double Rating { get; set; }
 
         private MovieNode right;
         private MovieNode left;

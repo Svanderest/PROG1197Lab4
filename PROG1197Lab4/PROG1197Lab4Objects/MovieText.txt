@@ -1,0 +1,15 @@
+﻿Interstellar;11-07-2014;169;Christopher Nolan;8.6
+Apollo 13;06-30-1995;140;Ron Howard;7.6
+Blade Runner;06-25-1982;117;Ridley Scott;8.2
+The Matrix;03-31-1999;136;Lana & Lilly Wachowski;8.7
+Inception;07-16-2010;148;Christopher Nolan;8.8
+E.T. the Extra-Terrestrial;06-11-1982;115;Steven Spielberg;7.9
+The Martian;10-2-2015;144;Ridley Scott;8.0
+Star Wars;05-25-1977;121;George Lucas;8.6
+The Terminator;10-26-1984;107;James Cameron;8.0
+Gattaca;10-24-1997;106;Andrew Niccol;7.8
+Moon;07-10-2009;97;Duncan Jones;7.9
+Children of Men;01-05-2007;109;Alfonso Cuaron;7.9
+Looper;09-28-2012;113;Rian Johnson;7.4
+Inception;07-16-2010;148;Christopher Nolan;8.8
+Star Trek;05-08-2009;127;J.J. Abrams;8.0
