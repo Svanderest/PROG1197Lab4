@@ -14,7 +14,7 @@ namespace PROG1197Lab4Objects
         private MovieNode right;
         private MovieNode left;
 
-        public MovieNode Parent { get; private set; }
+        public MovieNode Parent { get; internal set; }
         public MovieNode Right
         {
             get { return right; }
