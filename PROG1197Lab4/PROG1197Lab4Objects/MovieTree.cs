@@ -21,7 +21,7 @@ namespace PROG1197Lab4Objects
                 {
                     lines.Add(sr.ReadLine());
                 }
-                tree.Root = tree.Build(lines.Select(l => l.Split(';')).Select(line => 
+                var nodes = lines.Select(l => l.Split(';')).Select(line =>
                 new MovieNode
                 {
                     Title = line[0],
@@ -29,7 +29,8 @@ namespace PROG1197Lab4Objects
                     Runtime = TimeSpan.FromMinutes(Convert.ToInt32(line[2])),
                     Director = line[3],
                     Rating = Convert.ToDouble(line[4])
-                }));
+                });                
+                tree.Root = tree.Build(nodes);
             }
            return tree;
         }
@@ -38,13 +39,15 @@ namespace PROG1197Lab4Objects
 
         public MovieNode Build(IEnumerable<MovieNode> nodes)
         {
+            foreach (MovieNode N in nodes.Where(n => nodes.Count(mn => mn.Equals(n)) > 1))
+                return Build(nodes.Where(n => !n.Equals(N)).Union(new MovieNode[] { N }));
             nodes = nodes.OrderBy(n => n);
             try
             {
                 var current = nodes.ElementAt(nodes.Count() / 2);
-                if (current != nodes.Max())
+                if (current.CompareTo(nodes.Max()) != 0)
                     current.Right = Build(nodes.Where(n => n.CompareTo(current) == 1));
-                if (current != nodes.Min())
+                if (current.CompareTo(nodes.Min()) != 0)
                     current.Left = Build(nodes.Where(n => n.CompareTo(current) == -1));
                 return current;
             }
