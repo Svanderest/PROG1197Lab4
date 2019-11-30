@@ -93,7 +93,10 @@ namespace PROG1197Lab4Objects
                         }
                         var rebuiltTree = Build(current.Children.Union(new List<MovieNode> { current, item }));
                         if (i == 0)
+                        {
                             Root = rebuiltTree;
+                            Root.Parent = null;
+                        }
                         else if (i < 0)
                             previous.Left = rebuiltTree;
                         else
