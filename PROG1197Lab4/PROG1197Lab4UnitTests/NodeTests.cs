@@ -175,5 +175,20 @@ namespace PROG1197Lab4UnitTests
             //Assert
             Assert.AreEqual(expected, actual);
         }
+
+        [TestMethod]
+        public void CloneTest()
+        {
+            //Arrange
+            IEnumerable<MovieNode> target = ReadNodes();
+
+            //Act
+            bool condition = true;
+            foreach (MovieNode n in target)
+                condition = condition && n.Equals((MovieNode)n.Clone());
+
+            //Assert
+            Assert.IsTrue(condition);
+        }
     }
 }

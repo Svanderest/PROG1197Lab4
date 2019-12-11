@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -12,12 +13,11 @@ namespace PROG1197Lab4Objects
 
         public static MovieTree Create()
         {
-            tree = new MovieTree();
             using (FileStream fs = new FileStream(@"C:\\Users\\sebas\\source\repos\\PROG1197Lab4\\PROG1197Lab4\\PROG1197Lab4Objects\\MovieText.txt", FileMode.Open))
-            using(StreamReader sr = new StreamReader(fs))
+            using (StreamReader sr = new StreamReader(fs))
             {
                 List<string> lines = new List<string>();
-                while(!sr.EndOfStream)
+                while (!sr.EndOfStream)
                 {
                     lines.Add(sr.ReadLine());
                 }
@@ -29,18 +29,75 @@ namespace PROG1197Lab4Objects
                     Runtime = TimeSpan.FromMinutes(Convert.ToInt32(line[2])),
                     Director = line[3],
                     Rating = Convert.ToDouble(line[4])
-                });                
-                tree.Root = tree.Build(nodes);
+                });
+                tree = new MovieTree(nodes);
             }
-           return tree;
+            return tree;
+        }
+
+        public MovieTree() { }
+
+        public MovieTree(IEnumerable<MovieNode> nodes)
+        {
+            Root = Build(nodes);
         }
 
         public MovieNode Root { get; private set; }
+        public int Count { get; private set; }
+
+        public int Depth
+        {
+            get
+            {
+                if (Root == null)
+                    return 0;
+                return 1 + (int)Math.Floor(Math.Log(Count,2));
+            }
+        }
+
+        public MovieNode this[int index]
+        {
+            get
+            {
+                if (index <= 0 || index >= Math.Pow(2, Depth))
+                    throw new IndexOutOfRangeException();
+                var current = Root;
+                bool start = false;
+                var bits = new BitArray(new int[] { index });
+                for (int i = Depth - 1; i >= 0; i--)
+                {
+                    if (start)
+                        current = bits[i] ? current.Right : current.Left;
+                    start = start || bits[i];
+                }
+                return current;
+            }
+        }
+
+        public int IndexOf(MovieNode item)
+        {
+            List<bool> bits = new List<bool> { true };
+            for (MovieNode current = Root; item.CompareTo(current) != 0; current = item.CompareTo(current) < 0 ? current.Left : current.Right)
+                bits.Add(item.CompareTo(current) == 1);
+            bits.Reverse();
+            int[] index = new int[1];
+            new BitArray(bits.ToArray()).CopyTo(index, 0);
+            return index[0];
+        }
+
+        public IEnumerable<MovieNode> Display
+        {
+            get
+            {
+                return new MovieNode[] { Root }.Union(Root.Children);
+            }
+        }
 
         public MovieNode Build(IEnumerable<MovieNode> nodes)
         {
             foreach (MovieNode N in nodes.Where(n => nodes.Count(mn => mn.Equals(n)) > 1))
                 return Build(nodes.Where(n => !n.Equals(N)).Union(new MovieNode[] { N }));
+            Count = Math.Max(Count, nodes.Count());
             nodes = nodes.OrderBy(n => n);
             try
             {
@@ -53,58 +110,24 @@ namespace PROG1197Lab4Objects
             }
             catch
             {
-                return null; 
+                return null;
             }
         }
 
         public void Add(MovieNode item)
         {
-            if (Root == null)
-                Root = item;
-            else if (Root.Children.Contains(item) || Root.CompareTo(item) == 0)
-                return;
-            else if (!Root.Inbalanced)
-            {
-                var current = Root;
-                while (current.CompareTo(item) != 0)
-                {
-                    int i = item.CompareTo(current);
-                    if (i == -1 && current.Left == null)
-                        current.Left = item;
-                    if (i == 1 && current.Right == null)
-                        current.Right = item;
-                    current = i == 1 ? current.Right : current.Left;
-                }
-            }
-            else
-            {
-                var current = Root;
-                while (current.CompareTo(item) != 0)
-                {
-                    var next = item.CompareTo(current) == -1 ? current.Left : current.Right;
-                    if (next == null || !next.Inbalanced)
-                    {
-                        float i = current.CompareTo(Root);
-                        MovieNode previous = null;
-                        if (i != 0)
-                        {
-                            i = current.CompareTo(current.Parent.Left) - 0.5f;
-                            previous = current.Parent;
-                        }
-                        var rebuiltTree = Build(current.Children.Union(new List<MovieNode> { current, item }));
-                        if (i == 0)
-                        {
-                            Root = rebuiltTree;
-                            Root.Parent = null;
-                        }
-                        else if (i < 0)
-                            previous.Left = rebuiltTree;
-                        else
-                            previous.Right = rebuiltTree;
-                        break;
-                    }
-                }
-            }            
+            var nodes = Display.Union(new List<MovieNode> { item });
+            foreach (MovieNode n in nodes)
+                n.Clear();
+            Root = Build(nodes);
+        }
+
+        public MovieNode Find(MovieNode item)
+        {
+            var current = Root;
+            while (current != null && item.CompareTo(current) != 0)
+                current = item.CompareTo(current) < 0 ? current.Left : current.Right;
+            return current;
         }
     }
 }
